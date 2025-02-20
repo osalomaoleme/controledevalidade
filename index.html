@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+  <title>Controle de Validade</title>
+
+  <!-- Manifest com caminho relativo -->
+  <link rel="manifest" href="./manifest.json" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #0d283d;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      color: #0d283d;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      color: #0d283d;
+      font-weight: bold;
+    }
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #0d283d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:disabled {
+      background-color: #3a5a77;
+      cursor: not-allowed;
+    }
+    #mensagem {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>CONTROLE DE VALIDADE</h2>
+
+    <label for="codigo">Código do Produto:</label>
+    <input type="text" id="codigo" required />
+
+    <label for="quantidade">Quantidade:</label>
+    <input type="number" id="quantidade" required />
+
+    <label for="validade">Data de Vencimento:</label>
+    <input type="date" id="validade" required />
+
+    <label for="setor">Setor:</label>
+    <select id="setor">
+      <option value="MERCEARIA">MERCEARIA</option>
+      <option value="AÇOUGUE">AÇOUGUE</option>
+      <option value="FLV">FLV</option>
+      <option value="FRIOS">FRIOS</option>
+      <option value="PADARIA">PADARIA</option>
+    </select>
+
+    <button onclick="enviarDados()">Enviar</button>
+    <p id="mensagem"></p>
+  </div>
+
+  <script>
+    // Substitua pelo URL do seu Apps Script
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbxHGTLY1cvejOEKB57LSiK72bHOb0LrnRqihXybfJ7x2jXCp13GwS1zSlwvr2YldKSK8A/exec";
+
+    async function enviarDados() {
+      const botao = document.querySelector("button");
+      botao.disabled = true;
+      botao.textContent = "Enviando...";
+
+      const dados = {
+        codigo: document.getElementById("codigo").value,
+        quantidade: document.getElementById("quantidade").value,
+        validade: document.getElementById("validade").value,
+        setor: document.getElementById("setor").value,
+      };
+
+      try {
+        const response = await fetch(scriptUrl, {
+          method: "POST",
+          body: JSON.stringify(dados),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const resposta = await response.json();
+
+        document.getElementById("mensagem").textContent = resposta.mensagem;
+        document.getElementById("mensagem").style.color =
+          resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
+
+        if (resposta.status === "Sucesso") {
+          document.getElementById("codigo").value = "";
+          document.getElementById("quantidade").value = "";
+          document.getElementById("validade").value = "";
+          document.getElementById("setor").selectedIndex = 0;
+        }
+      } catch (erro) {
+        document.getElementById("mensagem").textContent =
+          "Falha na comunicação com o servidor";
+        document.getElementById("mensagem").style.color = "#ff0000";
+        console.error(erro);
+      } finally {
+        botao.disabled = false;
+        botao.textContent = "Enviar";
+      }
+    }
+
+    // Registrar o Service Worker (caminho relativo)
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("./sw.js")
+          .then((registration) => {
+            console.log("Service Worker registrado com sucesso:", registration);
+          })
+          .catch((error) => {
+            console.log("Erro ao registrar o Service Worker:", error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
