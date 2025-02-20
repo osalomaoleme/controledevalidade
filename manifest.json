@@ -1,0 +1,22 @@
+{
+  "short_name": "Controle de Validade",
+  "name": "Controle de Validade - Estoque",
+  "icons": [
+    {
+      "src": "./icons/icone.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icons/icone.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#ffffff",
+  "theme_color": "#0d283d",
+  "display": "standalone",
+  "scope": "./",
+  "orientation": "portrait"
+}
