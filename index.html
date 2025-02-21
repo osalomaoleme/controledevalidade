@@ -53,32 +53,45 @@
   <script>
     const scriptUrl = "https://script.google.com/macros/s/AKfycbxL7_AmfYTALLqdZG9YZfa5yx8lORE-lR5JbOZaJaIQYLPweh8N2thjm5fqeKiUBLGFbw/exec";
 
-    async function enviarDados() {
-      const botao = document.querySelector("button");
-      botao.disabled = true;
-      botao.textContent = "Enviando...";
+     async function enviarDados() {
+    const botao = document.querySelector("button");
+    botao.disabled = true;
+    botao.textContent = "Enviando...";
 
-      const params = new URLSearchParams({
-        codigo: document.getElementById("codigo").value,
-        quantidade: document.getElementById("quantidade").value,
-        validade: document.getElementById("validade").value,
-        setor: document.getElementById("setor").value,
+    const codigo = document.getElementById("codigo").value;
+    const quantidade = document.getElementById("quantidade").value;
+    const validade = document.getElementById("validade").value;
+    const setor = document.getElementById("setor").value;
+
+    const params = new URLSearchParams({
+      codigo,
+      quantidade,
+      validade,
+      setor,
+    });
+
+    try {
+      const response = await fetch(`${scriptUrl}?${params.toString()}`, {
+        method: "GET"
       });
+      const resposta = await response.json();
+      document.getElementById("mensagem").textContent = resposta.mensagem;
+      document.getElementById("mensagem").style.color = resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
 
-      try {
-        const response = await fetch(`${scriptUrl}?${params.toString()}`, {
-          method: "GET"
-        });
-        const resposta = await response.json();
-        document.getElementById("mensagem").textContent = resposta.mensagem;
-        document.getElementById("mensagem").style.color = resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
-      } catch (erro) {
-        document.getElementById("mensagem").textContent = "Falha na comunicação com o servidor";
-        document.getElementById("mensagem").style.color = "#ff0000";
-        console.error(erro);
-      } finally {
-        botao.disabled = false;
-        botao.textContent = "Enviar";
+      if (resposta.status === "Sucesso") {
+        // Limpa os campos para que o usuário possa digitar novos dados
+        document.getElementById("codigo").value = "";
+        document.getElementById("quantidade").value = "";
+        document.getElementById("validade").value = "";
+        document.getElementById("setor").selectedIndex = 0;
+      }
+    } catch (erro) {
+      document.getElementById("mensagem").textContent = "Falha na comunicação com o servidor";
+      document.getElementById("mensagem").style.color = "#ff0000";
+      console.error(erro);
+    } finally {
+      botao.disabled = false;
+      botao.textContent = "Enviar";
       }
     }
   </script>
