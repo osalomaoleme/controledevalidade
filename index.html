@@ -35,6 +35,10 @@
       max-width: 300px;
       border: 1px solid #ccc;
     }
+    #close-camera-btn {
+      background-color: #f44336; /* Cor do botão de fechar */
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -49,6 +53,7 @@
     <!-- Container para exibir o vídeo da câmera -->
     <div id="video-container">
       <video id="video" autoplay></video>
+      <button id="close-camera-btn" onclick="fecharCamera()">Fechar Câmera</button>
     </div>
     
     <label for="quantidade">Quantidade:</label>
@@ -153,6 +158,12 @@
         Quagga.stop();
         document.getElementById("video-container").style.display = "none";
       });
+    }
+
+    function fecharCamera() {
+      // Para a leitura do Quagga e esconde o vídeo
+      Quagga.stop();
+      document.getElementById("video-container").style.display = "none";
     }
   </script>
 </body>
