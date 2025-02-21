@@ -123,42 +123,43 @@
     function iniciarLeitura() {
       // Exibe o container de vídeo
       document.getElementById("video-container").style.display = "block";
+      console.log("Vídeo exibido, iniciando captura...");
 
-      // Inicializa o Quagga para ler o código de barras
       Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: document.querySelector('#video'),
-          constraints: {
-            width: 300,
-            height: 200,
-           facingMode: { exact: "environment" }// Força o uso da câmera traseira
-          }
-        },
-        decoder: {
-          readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
-        },
-      }, function(err) {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        console.log("Quagga inicializado com sucesso, iniciando leitura...");
-        Quagga.start();
-      });
-
-      // Quando um código for detectado
-      Quagga.onDetected(function(result) {
-        const codigo = result.codeResult.code;
-        console.log("Código detectado:", codigo);
-        // Preenche o campo de código
-        document.getElementById("codigo").value = codigo;
-        // Para a leitura e oculta o container de vídeo
-        Quagga.stop();
-        document.getElementById("video-container").style.display = "none";
-      });
+  inputStream: {
+    name: "Live",
+    type: "LiveStream",
+    target: document.querySelector('#video'),
+    constraints: {
+      width: 300,
+      height: 200,
+      facingMode: "environment"
     }
+  },
+  decoder: {
+    readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
+  },
+}, function(err) {
+  if (err) {
+    console.error("Erro na inicialização do Quagga:", err);
+    return;
+  }
+  console.log("Quagga inicializado com sucesso, iniciando leitura...");
+  document.getElementById("video-container").style.display = "block";  // Exibe o container de vídeo
+  Quagga.start();
+});
+
+// Se houver algum problema de permissão ou inicialização, isso ajuda a diagnosticar.
+navigator.mediaDevices.enumerateDevices()
+  .then(devices => {
+    devices.forEach(device => {
+      console.log(device.kind + ": " + device.label);
+    });
+  })
+  .catch(err => {
+    console.error("Erro ao acessar dispositivos:", err);
+  });
+
 
     function fecharCamera() {
       // Para a leitura do Quagga e esconde o vídeo
