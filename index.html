@@ -31,10 +31,10 @@
       text-align: center;
     }
     #video {
-      width: 100%;
-      max-width: 300px;
-      border: 1px solid #ccc;
-    }
+  width: 100%;
+  height: 200px;  /* Garantir que a altura esteja definida */
+  border: 1px solid #ccc;
+  }
     #close-camera-btn {
       background-color: #f44336; /* Cor do botão de fechar */
       color: white;
@@ -133,7 +133,7 @@
           constraints: {
             width: 300,
             height: 200,
-            facingMode: "environment" // Força o uso da câmera traseira
+           facingMode: { exact: "environment" }// Força o uso da câmera traseira
           }
         },
         decoder: {
