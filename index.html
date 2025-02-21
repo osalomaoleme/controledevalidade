@@ -115,46 +115,31 @@
       }
     }
 
-
-    function testarCamera() {
-    // Exibe o container de vídeo
-    document.getElementById("video-container").style.display = "block";
-    const videoElement = document.getElementById("video");
-    
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-      .then(function(stream) {
-        videoElement.srcObject = stream;
-        videoElement.play();
-      })
-      .catch(function(err) {
-        console.error("Erro ao acessar a câmera:", err);
-      });
-  }
-  
     function iniciarLeitura() {
-  // Exibe o container de vídeo
-  document.getElementById("video-container").style.display = "block";
+      // Exibe o container de vídeo
+      document.getElementById("video-container").style.display = "block";
 
-  const videoElement = document.getElementById("video");
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-    .then(function(stream) {
-      videoElement.srcObject = stream;
-      videoElement.play();
-    })
-    .catch(function(err) {
-      console.error("Erro ao acessar a câmera:", err);
-    });
-}
-
+      // Inicializa o Quagga para ler o código de barras
+      Quagga.init({
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: document.querySelector('#video'),
+          constraints: {
+            width: 300,
+            height: 200,
+            facingMode: "environment" // usa a câmera traseira
+          }
         },
         decoder: {
-          readers: ["code_128_reader", "ean_reader", "ean_8_reader"] // ajuste conforme o padrão dos seus códigos
+          readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
         },
       }, function(err) {
         if (err) {
           console.error(err);
           return;
         }
+        console.log("Quagga inicializado com sucesso, iniciando leitura...");
         Quagga.start();
       });
 
