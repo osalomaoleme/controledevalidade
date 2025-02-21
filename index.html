@@ -12,6 +12,8 @@
         .catch(err => console.error("Erro no Service Worker:", err));
     }
   </script>
+  <!-- Inclua a biblioteca QuaggaJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
     body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #0d283d; padding: 20px; }
@@ -22,6 +24,17 @@
     button { width: 100%; padding: 14px; background-color: #0d283d; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: 0.3s; }
     button:disabled { background-color: #3a5a77; cursor: not-allowed; }
     #mensagem { margin-top: 15px; font-weight: bold; text-align: center; }
+    /* Estilo para o container de vídeo */
+    #video-container {
+      display: none;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    #video {
+      width: 100%;
+      max-width: 300px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
 <body>
@@ -30,6 +43,13 @@
     
     <label for="codigo">Código do Produto:</label>
     <input type="number" id="codigo" required />
+    <!-- Botão para ativar a leitura de código de barras -->
+    <button type="button" onclick="iniciarLeitura()">Ler Código de Barras</button>
+    
+    <!-- Container para exibir o vídeo da câmera -->
+    <div id="video-container">
+      <video id="video" autoplay></video>
+    </div>
     
     <label for="quantidade">Quantidade:</label>
     <input type="number" id="quantidade" required />
@@ -53,46 +73,85 @@
   <script>
     const scriptUrl = "https://script.google.com/macros/s/AKfycbxL7_AmfYTALLqdZG9YZfa5yx8lORE-lR5JbOZaJaIQYLPweh8N2thjm5fqeKiUBLGFbw/exec";
 
-     async function enviarDados() {
-    const botao = document.querySelector("button");
-    botao.disabled = true;
-    botao.textContent = "Enviando...";
+    async function enviarDados() {
+      const botao = document.querySelector("button");
+      botao.disabled = true;
+      botao.textContent = "Enviando...";
 
-    const codigo = document.getElementById("codigo").value;
-    const quantidade = document.getElementById("quantidade").value;
-    const validade = document.getElementById("validade").value;
-    const setor = document.getElementById("setor").value;
+      const codigo = document.getElementById("codigo").value;
+      const quantidade = document.getElementById("quantidade").value;
+      const validade = document.getElementById("validade").value;
+      const setor = document.getElementById("setor").value;
 
-    const params = new URLSearchParams({
-      codigo,
-      quantidade,
-      validade,
-      setor,
-    });
-
-    try {
-      const response = await fetch(`${scriptUrl}?${params.toString()}`, {
-        method: "GET"
+      const params = new URLSearchParams({
+        codigo,
+        quantidade,
+        validade,
+        setor,
       });
-      const resposta = await response.json();
-      document.getElementById("mensagem").textContent = resposta.mensagem;
-      document.getElementById("mensagem").style.color = resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
 
-      if (resposta.status === "Sucesso") {
-        // Limpa os campos para que o usuário possa digitar novos dados
-        document.getElementById("codigo").value = "";
-        document.getElementById("quantidade").value = "";
-        document.getElementById("validade").value = "";
-        document.getElementById("setor").selectedIndex = 0;
+      try {
+        const response = await fetch(`${scriptUrl}?${params.toString()}`, {
+          method: "GET"
+        });
+        const resposta = await response.json();
+        document.getElementById("mensagem").textContent = resposta.mensagem;
+        document.getElementById("mensagem").style.color = resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
+
+        if (resposta.status === "Sucesso") {
+          // Limpa os campos para que o usuário possa digitar novos dados
+          document.getElementById("codigo").value = "";
+          document.getElementById("quantidade").value = "";
+          document.getElementById("validade").value = "";
+          document.getElementById("setor").selectedIndex = 0;
+        }
+      } catch (erro) {
+        document.getElementById("mensagem").textContent = "Falha na comunicação com o servidor";
+        document.getElementById("mensagem").style.color = "#ff0000";
+        console.error(erro);
+      } finally {
+        botao.disabled = false;
+        botao.textContent = "Enviar";
       }
-    } catch (erro) {
-      document.getElementById("mensagem").textContent = "Falha na comunicação com o servidor";
-      document.getElementById("mensagem").style.color = "#ff0000";
-      console.error(erro);
-    } finally {
-      botao.disabled = false;
-      botao.textContent = "Enviar";
-      }
+    }
+
+    function iniciarLeitura() {
+      // Exibe o container de vídeo
+      document.getElementById("video-container").style.display = "block";
+
+      // Inicializa o Quagga para ler o código de barras
+      Quagga.init({
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: document.querySelector('#video'),
+          constraints: {
+            width: 300,
+            height: 200,
+            facingMode: "environment" // utiliza a câmera traseira
+          }
+        },
+        decoder: {
+          readers: ["code_128_reader", "ean_reader", "ean_8_reader"] // ajuste conforme o padrão dos seus códigos
+        },
+      }, function(err) {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        Quagga.start();
+      });
+
+      // Quando um código for detectado
+      Quagga.onDetected(function(result) {
+        const codigo = result.codeResult.code;
+        console.log("Código detectado:", codigo);
+        // Preenche o campo de código
+        document.getElementById("codigo").value = codigo;
+        // Para a leitura e oculta o container de vídeo
+        Quagga.stop();
+        document.getElementById("video-container").style.display = "none";
+      });
     }
   </script>
 </body>
