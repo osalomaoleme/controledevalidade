@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Controle de Validade</title>
+  <title>Controle de Validade - Quagga2</title>
 
   <!-- Manifest (PWA) -->
   <link rel="manifest" href="./manifest.json" />
@@ -17,8 +17,8 @@
     }
   </script>
 
-  <!-- Biblioteca Quagga -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+  <!-- Biblioteca Quagga2 -->
+  <script src="https://unpkg.com/@ericblade/quagga2@1.2.6/dist/quagga.min.js"></script>
 
   <style>
     * {
@@ -136,13 +136,13 @@
       <option value="PADARIA">PADARIA</option>
     </select>
     
-    <!-- Botão de envio com ID específico -->
+    <!-- Botão de envio -->
     <button id="btn-enviar" onclick="enviarDados()">Enviar</button>
     <p id="mensagem"></p>
   </div>
 
   <script>
-    // Substitua pela sua URL do Google Apps Script
+    // URL do seu backend (Apps Script, por exemplo)
     const scriptUrl = "https://script.google.com/macros/s/AKfycbxL7_AmfYTALLqdZG9YZfa5yx8lORE-lR5JbOZaJaIQYLPweh8N2thjm5fqeKiUBLGFbw/exec";
 
     async function enviarDados() {
@@ -155,7 +155,6 @@
       const validade = document.getElementById("validade").value;
       const setor = document.getElementById("setor").value;
 
-      // Verificação simples se os campos obrigatórios estão preenchidos
       if (!codigo || !quantidade || !validade) {
         document.getElementById("mensagem").textContent = "Preencha todos os campos obrigatórios!";
         document.getElementById("mensagem").style.color = "#ff0000";
@@ -164,22 +163,17 @@
         return;
       }
 
-      // Monta os parâmetros de query
       const params = new URLSearchParams({ codigo, quantidade, validade, setor });
 
       try {
-        // Faz a requisição GET para o Apps Script
         const response = await fetch(`${scriptUrl}?${params.toString()}`, {
           method: "GET"
         });
         const resposta = await response.json();
-        
-        // Exibe a mensagem de retorno
         document.getElementById("mensagem").textContent = resposta.mensagem;
         document.getElementById("mensagem").style.color = 
           resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
 
-        // Se sucesso, limpa os campos
         if (resposta.status === "Sucesso") {
           document.getElementById("codigo").value = "";
           document.getElementById("quantidade").value = "";
@@ -187,7 +181,6 @@
           document.getElementById("setor").selectedIndex = 0;
         }
       } catch (erro) {
-        // Em caso de erro de comunicação
         document.getElementById("mensagem").textContent = "Falha na comunicação com o servidor";
         document.getElementById("mensagem").style.color = "#ff0000";
         console.error(erro);
@@ -198,10 +191,8 @@
     }
 
     function iniciarLeitura() {
-      // Exibe o container de vídeo
       document.getElementById("video-container").style.display = "flex";
 
-      // Inicializa o Quagga
       Quagga.init({
         inputStream: {
           name: "Live",
@@ -210,7 +201,7 @@
           constraints: {
             width: 300,
             height: 200,
-            facingMode: "environment" // câmera traseira em dispositivos móveis
+            facingMode: "environment"
           }
         },
         decoder: {
@@ -218,25 +209,20 @@
         },
       }, function(err) {
         if (err) {
-          console.error("Erro na inicialização do Quagga:", err);
+          console.error("Erro na inicialização do Quagga2:", err);
           document.getElementById("mensagem").textContent = "Erro ao acessar a câmera. Verifique permissões.";
           document.getElementById("mensagem").style.color = "#ff0000";
           return;
         }
-        console.log("Quagga inicializado com sucesso, iniciando leitura...");
+        console.log("Quagga2 inicializado com sucesso, iniciando leitura...");
         Quagga.start();
       });
 
-      // Callback para capturar o código lido
       Quagga.onDetected(function(result) {
         if (result && result.codeResult && result.codeResult.code) {
           const codigoLido = result.codeResult.code;
           console.log("Código detectado:", codigoLido);
-
-          // Preenche o campo #codigo com o valor lido
           document.getElementById("codigo").value = codigoLido;
-
-          // Fecha a câmera após a leitura
           fecharCamera();
         }
       });
