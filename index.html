@@ -12,7 +12,6 @@
         .catch(err => console.error("Erro no Service Worker:", err));
     }
   </script>
-  <!-- Inclua a biblioteca QuaggaJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
@@ -31,12 +30,12 @@
       text-align: center;
     }
     #video {
-  width: 100%;
-  height: 200px;  /* Garantir que a altura esteja definida */
-  border: 1px solid #ccc;
-  }
+      width: 100%;
+      height: 200px;
+      border: 1px solid #ccc;
+    }
     #close-camera-btn {
-      background-color: #f44336; /* Cor do botão de fechar */
+      background-color: #f44336;
       color: white;
     }
   </style>
@@ -104,7 +103,6 @@
         document.getElementById("mensagem").style.color = resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
 
         if (resposta.status === "Sucesso") {
-          // Limpa os campos para que o usuário possa digitar novos dados
           document.getElementById("codigo").value = "";
           document.getElementById("quantidade").value = "";
           document.getElementById("validade").value = "";
@@ -121,48 +119,34 @@
     }
 
     function iniciarLeitura() {
-      // Exibe o container de vídeo
       document.getElementById("video-container").style.display = "block";
       console.log("Vídeo exibido, iniciando captura...");
 
       Quagga.init({
-  inputStream: {
-    name: "Live",
-    type: "LiveStream",
-    target: document.querySelector('#video'),
-    constraints: {
-      width: 300,
-      height: 200,
-      facingMode: "environment"
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: document.querySelector('#video'),
+          constraints: {
+            width: 300,
+            height: 200,
+            facingMode: "environment"
+          }
+        },
+        decoder: {
+          readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
+        },
+      }, function(err) {
+        if (err) {
+          console.error("Erro na inicialização do Quagga:", err);
+          return;
+        }
+        console.log("Quagga inicializado com sucesso, iniciando leitura...");
+        Quagga.start();
+      });
     }
-  },
-  decoder: {
-    readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
-  },
-}, function(err) {
-  if (err) {
-    console.error("Erro na inicialização do Quagga:", err);
-    return;
-  }
-  console.log("Quagga inicializado com sucesso, iniciando leitura...");
-  document.getElementById("video-container").style.display = "block";  // Exibe o container de vídeo
-  Quagga.start();
-});
-
-// Se houver algum problema de permissão ou inicialização, isso ajuda a diagnosticar.
-navigator.mediaDevices.enumerateDevices()
-  .then(devices => {
-    devices.forEach(device => {
-      console.log(device.kind + ": " + device.label);
-    });
-  })
-  .catch(err => {
-    console.error("Erro ao acessar dispositivos:", err);
-  });
-
 
     function fecharCamera() {
-      // Para a leitura do Quagga e esconde o vídeo
       Quagga.stop();
       document.getElementById("video-container").style.display = "none";
     }
