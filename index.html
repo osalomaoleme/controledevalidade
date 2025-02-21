@@ -4,7 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Controle de Validade</title>
+
+  <!-- Manifest (PWA) -->
   <link rel="manifest" href="./manifest.json" />
+
+  <!-- Registro do Service Worker (opcional, se estiver usando PWA) -->
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js")
@@ -12,22 +16,79 @@
         .catch(err => console.error("Erro no Service Worker:", err));
     }
   </script>
+
+  <!-- Biblioteca Quagga para leitura de código de barras -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #0d283d; padding: 20px; }
-    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); width: 100%; max-width: 400px; }
-    h2 { color: #0d283d; margin-bottom: 20px; text-align: center; }
-    label { display: block; margin: 10px 0 5px; color: #0d283d; font-weight: bold; }
-    input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
-    button { width: 100%; padding: 14px; background-color: #0d283d; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: 0.3s; }
-    button:disabled { background-color: #3a5a77; cursor: not-allowed; }
-    #mensagem { margin-top: 15px; font-weight: bold; text-align: center; }
-    /* Estilo para o container de vídeo */
-    #video-container {
-      display: none;
-      margin-bottom: 15px;
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      font-family: Arial, sans-serif;
+    }
+    body {
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+      background-color: #0d283d; 
+      padding: 20px;
+    }
+    .container {
+      background: white; 
+      padding: 20px; 
+      border-radius: 10px; 
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); 
+      width: 100%; 
+      max-width: 400px;
+    }
+    h2 {
+      color: #0d283d; 
+      margin-bottom: 20px; 
       text-align: center;
+    }
+    label {
+      display: block; 
+      margin: 10px 0 5px; 
+      color: #0d283d; 
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%; 
+      padding: 12px; 
+      margin-bottom: 15px; 
+      border: 1px solid #ccc; 
+      border-radius: 5px; 
+      font-size: 16px;
+    }
+    button {
+      width: 100%; 
+      padding: 14px; 
+      background-color: #0d283d; 
+      color: white; 
+      border: none; 
+      border-radius: 5px; 
+      font-size: 16px; 
+      cursor: pointer; 
+      transition: 0.3s;
+    }
+    button:disabled {
+      background-color: #3a5a77; 
+      cursor: not-allowed;
+    }
+    #mensagem {
+      margin-top: 15px; 
+      font-weight: bold; 
+      text-align: center;
+    }
+
+    /* Container do vídeo */
+    #video-container {
+      display: none;          /* inicia oculto */
+      flex-direction: column; /* para alinhar itens verticalmente */
+      align-items: center;    /* centralizar */
+      margin-bottom: 15px;
     }
     #video {
       width: 100%;
@@ -35,8 +96,9 @@
       border: 1px solid #ccc;
     }
     #close-camera-btn {
-      background-color: #f44336;
-      color: white;
+      background-color: #f44336; 
+      color: white; 
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -44,8 +106,10 @@
   <div class="container">
     <h2>CONTROLE DE VALIDADE</h2>
     
+    <!-- Campo do código do produto -->
     <label for="codigo">Código do Produto:</label>
     <input type="number" id="codigo" required />
+    
     <!-- Botão para ativar a leitura de código de barras -->
     <button type="button" onclick="iniciarLeitura()">Ler Código de Barras</button>
     
@@ -55,6 +119,7 @@
       <button id="close-camera-btn" onclick="fecharCamera()">Fechar Câmera</button>
     </div>
     
+    <!-- Demais campos -->
     <label for="quantidade">Quantidade:</label>
     <input type="number" id="quantidade" required />
     
@@ -70,15 +135,17 @@
       <option value="PADARIA">PADARIA</option>
     </select>
     
-    <button onclick="enviarDados()">Enviar</button>
+    <!-- Botão de envio com ID específico -->
+    <button id="btn-enviar" onclick="enviarDados()">Enviar</button>
     <p id="mensagem"></p>
   </div>
 
   <script>
+    // Substitua pela sua URL do Google Apps Script
     const scriptUrl = "https://script.google.com/macros/s/AKfycbxL7_AmfYTALLqdZG9YZfa5yx8lORE-lR5JbOZaJaIQYLPweh8N2thjm5fqeKiUBLGFbw/exec";
 
     async function enviarDados() {
-      const botao = document.querySelector("button");
+      const botao = document.getElementById("btn-enviar");
       botao.disabled = true;
       botao.textContent = "Enviando...";
 
@@ -87,21 +154,31 @@
       const validade = document.getElementById("validade").value;
       const setor = document.getElementById("setor").value;
 
-      const params = new URLSearchParams({
-        codigo,
-        quantidade,
-        validade,
-        setor,
-      });
+      // Verificação simples se os campos obrigatórios estão preenchidos
+      if (!codigo || !quantidade || !validade) {
+        document.getElementById("mensagem").textContent = "Preencha todos os campos obrigatórios!";
+        document.getElementById("mensagem").style.color = "#ff0000";
+        botao.disabled = false;
+        botao.textContent = "Enviar";
+        return;
+      }
+
+      // Monta os parâmetros de query
+      const params = new URLSearchParams({ codigo, quantidade, validade, setor });
 
       try {
+        // Faz a requisição GET para o Apps Script
         const response = await fetch(`${scriptUrl}?${params.toString()}`, {
           method: "GET"
         });
         const resposta = await response.json();
+        
+        // Exibe a mensagem de retorno
         document.getElementById("mensagem").textContent = resposta.mensagem;
-        document.getElementById("mensagem").style.color = resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
+        document.getElementById("mensagem").style.color = 
+          resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
 
+        // Se sucesso, limpa os campos
         if (resposta.status === "Sucesso") {
           document.getElementById("codigo").value = "";
           document.getElementById("quantidade").value = "";
@@ -109,6 +186,7 @@
           document.getElementById("setor").selectedIndex = 0;
         }
       } catch (erro) {
+        // Em caso de erro de comunicação
         document.getElementById("mensagem").textContent = "Falha na comunicação com o servidor";
         document.getElementById("mensagem").style.color = "#ff0000";
         console.error(erro);
@@ -119,9 +197,10 @@
     }
 
     function iniciarLeitura() {
-      document.getElementById("video-container").style.display = "block";
-      console.log("Vídeo exibido, iniciando captura...");
+      // Exibe o container de vídeo
+      document.getElementById("video-container").style.display = "flex";
 
+      // Inicializa o Quagga
       Quagga.init({
         inputStream: {
           name: "Live",
@@ -130,7 +209,7 @@
           constraints: {
             width: 300,
             height: 200,
-            facingMode: "environment"
+            facingMode: "environment" // câmera traseira em dispositivos móveis
           }
         },
         decoder: {
@@ -139,10 +218,26 @@
       }, function(err) {
         if (err) {
           console.error("Erro na inicialização do Quagga:", err);
+          document.getElementById("mensagem").textContent = "Erro ao acessar a câmera. Verifique permissões.";
+          document.getElementById("mensagem").style.color = "#ff0000";
           return;
         }
         console.log("Quagga inicializado com sucesso, iniciando leitura...");
         Quagga.start();
+      });
+
+      // Callback para capturar o código lido
+      Quagga.onDetected(function(result) {
+        if (result && result.codeResult && result.codeResult.code) {
+          const codigoLido = result.codeResult.code;
+          console.log("Código detectado:", codigoLido);
+
+          // Preenche o campo #codigo com o valor lido
+          document.getElementById("codigo").value = codigoLido;
+
+          // Fecha a câmera após a leitura
+          fecharCamera();
+        }
       });
     }
 
