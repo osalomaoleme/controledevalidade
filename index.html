@@ -132,20 +132,20 @@
   }
   
     function iniciarLeitura() {
-      // Exibe o container de vídeo
-      document.getElementById("video-container").style.display = "block";
+  // Exibe o container de vídeo
+  document.getElementById("video-container").style.display = "block";
 
-      // Inicializa o Quagga para ler o código de barras
-      Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: document.querySelector('#video'),
-          constraints: {
-            width: 300,
-            height: 200,
-            facingMode: "environment" // utiliza a câmera traseira
-          }
+  const videoElement = document.getElementById("video");
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+    .then(function(stream) {
+      videoElement.srcObject = stream;
+      videoElement.play();
+    })
+    .catch(function(err) {
+      console.error("Erro ao acessar a câmera:", err);
+    });
+}
+
         },
         decoder: {
           readers: ["code_128_reader", "ean_reader", "ean_8_reader"] // ajuste conforme o padrão dos seus códigos
