@@ -120,45 +120,60 @@
       }
     }
 
-    function iniciarLeitura() {
-      // Exibe o container de vídeo
-      document.getElementById("video-container").style.display = "block";
+    
+  function iniciarLeitura() {
+    // Exibe o container de vídeo
+    document.getElementById("video-container").style.display = "block";
 
-      // Inicializa o Quagga para ler o código de barras
-      Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: document.querySelector('#video'),
-          constraints: {
-            width: 300,
-            height: 200,
-            facingMode: "environment" // usa a câmera traseira
-          }
-        },
-        decoder: {
-          readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
-        },
-      }, function(err) {
-        if (err) {
-          console.error(err);
-          return;
+    const videoElement = document.getElementById("video");
+
+    // Tente configurar sem o facingMode e verifique se funciona
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function(stream) {
+        videoElement.srcObject = stream;
+        videoElement.play();
+      })
+      .catch(function(err) {
+        console.error("Erro ao acessar a câmera:", err);
+      });
+
+    // Inicializa o Quagga para ler o código de barras
+    Quagga.init({
+      inputStream: {
+        name: "Live",
+        type: "LiveStream",
+        target: document.querySelector('#video'),
+        constraints: {
+          width: 300,
+          height: 200,
+          facingMode: "environment" // Ajuste aqui se necessário
         }
-        console.log("Quagga inicializado com sucesso, iniciando leitura...");
-        Quagga.start();
-      });
+      },
+      decoder: {
+        readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
+      },
+    }, function(err) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log("Quagga inicializado com sucesso, iniciando leitura...");
+      Quagga.start();
+    });
 
-      // Quando um código for detectado
-      Quagga.onDetected(function(result) {
-        const codigo = result.codeResult.code;
-        console.log("Código detectado:", codigo);
-        // Preenche o campo de código
-        document.getElementById("codigo").value = codigo;
-        // Para a leitura e oculta o container de vídeo
-        Quagga.stop();
-        document.getElementById("video-container").style.display = "none";
-      });
-    }
+    // Quando um código for detectado
+    Quagga.onDetected(function(result) {
+      const codigo = result.codeResult.code;
+      console.log("Código detectado:", codigo);
+      // Preenche o campo de código
+      document.getElementById("codigo").value = codigo;
+      // Para a leitura e oculta o container de vídeo
+      Quagga.stop();
+      document.getElementById("video-container").style.display = "none";
+    });
+  }
+
+
 
     function fecharCamera() {
       // Para a leitura do Quagga e esconde o vídeo
