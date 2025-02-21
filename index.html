@@ -115,6 +115,22 @@
       }
     }
 
+
+    function testarCamera() {
+    // Exibe o container de vídeo
+    document.getElementById("video-container").style.display = "block";
+    const videoElement = document.getElementById("video");
+    
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(function(stream) {
+        videoElement.srcObject = stream;
+        videoElement.play();
+      })
+      .catch(function(err) {
+        console.error("Erro ao acessar a câmera:", err);
+      });
+  }
+  
     function iniciarLeitura() {
       // Exibe o container de vídeo
       document.getElementById("video-container").style.display = "block";
