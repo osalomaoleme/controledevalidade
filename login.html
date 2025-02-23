@@ -69,7 +69,7 @@
         const result = await response.json();
         
         if (result.status === "Sucesso") {
-          localStorage.setItem("usuarioLogado", username);
+          sessionStorage.setItem("usuarioLogado", username);
           window.location.href = "index.html";
         } else {
           errorMsg.innerText = result.mensagem;
