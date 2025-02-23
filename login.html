@@ -53,17 +53,27 @@
     <img src="logodeltap.png" alt="Logo DeltaP" />
   </div>
 
-  <!-- Container branco com o conteúdo do app -->
-  <div class="container">
+ <!-- Container branco com o conteúdo do app -->
+<div class="container">
   <div id="login-container">
     <h2>Login</h2>
     <input type="text" id="username" placeholder="Usuário">
-    <input type="number" id="password" placeholder="Senha">
+    <input type="password" id="password" placeholder="Senha">
+    <label>
+      <input type="checkbox" onclick="togglePassword()"> Mostrar senha
+    </label>
     <button onclick="login()">Entrar</button>
     <p id="error-msg" class="error"></p>
   </div>
+</div>
 
-  <script>
+<script>
+  function togglePassword() {
+    var passwordInput = document.getElementById("password");
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+  }
+</script>
+
     // URL do seu Web App do Google Apps Script – use a mesma URL que funciona no index.html.
     const scriptUrl = "https://script.google.com/macros/s/AKfycbyQRBo2kZRXA6PgRlaQuMCQbfeZJcKonkkEz-G3B6obw_6Ccojww2z9q3fc6ylzc7ZZ/exec";
 
