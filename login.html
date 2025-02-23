@@ -52,29 +52,25 @@
     </div>
 
     <script>
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbwRB7PBmcgmJOjyn-3oPRZUM8YBrvxYd4POe6KU1mxlRXHDo5_SdeLdshxi9_4JVxF9UA/exec";
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbwKNmgGhaLc8y_M9thLgGrGYfOissvMpRI6aF7LkIPS63R8vAKVPjFivNKlDJFgl-Lbyw/exec";
 
-function login() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const errorMsg = document.getElementById("error-msg");
+fetch(`${scriptUrl}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
+  .then(response => response.json())
+  .then(response => {
+    if(response === "sucesso") {
+      // Login OK: armazena o usuário e redireciona
+      localStorage.setItem("usuarioLogado", username);
+      window.location.href = "index.html";
+    } else {
+      // Erro de login
+      errorMsg.innerText = "Usuário ou senha incorretos!";
+    }
+  })
+  .catch(err => {
+    console.error("Erro:", err);
+    errorMsg.innerText = "Erro na comunicação com o servidor.";
+  });
 
-  // Faz uma requisição GET para o seu web app
-  fetch(`${scriptUrl}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
-    .then(response => response.json())
-    .then(response => {
-      if (response == "sucesso") {
-        localStorage.setItem("usuarioLogado", username); // Armazena o login no navegador
-        window.location.href = "index.html"; // Redireciona para o app
-      } else {
-        errorMsg.innerText = "Usuário ou senha incorretos!";
-      }
-    })
-    .catch(err => {
-      console.error("Erro:", err);
-      errorMsg.innerText = "Erro na comunicação com o servidor.";
-    });
-}
 
     </script>
 </body>
