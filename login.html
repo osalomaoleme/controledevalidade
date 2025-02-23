@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        #login-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: auto;
+            margin-top: 100px;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        button {
+            background: #0D283D;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0D283D;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-container">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Usuário">
+        <input type="password" id="password" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+        <p id="error-msg" class="error"></p>
+    </div>
+
+    <script>
+        function login() {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            var errorMsg = document.getElementById("error-msg");
+
+            google.script.run.withSuccessHandler(function(response) {
+                if (response == "sucesso") {
+                    window.location.href = "index.html"; // Redireciona para a página principal do app
+                } else {
+                    errorMsg.innerText = "Usuário ou senha incorretos!";
+                }
+            }).verificarLogin(username, password);
+        }
+    </script>
+</body>
+</html>
