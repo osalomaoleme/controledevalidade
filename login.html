@@ -11,6 +11,14 @@
       background-color: #f4f4f4;
       padding: 20px;
     }
+    /* Container para a logo, que ficará fora do bloco branco */
+    .logo-container {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .logo-container img {
+      width: 200px; /* ajuste conforme necessário */
+    }
     #login-container {
       background: white;
       padding: 20px;
@@ -40,6 +48,13 @@
   </style>
 </head>
 <body>
+  !-- Div exclusiva para a logo -->
+  <div class="logo-container">
+    <img src="logo2.png" alt="Logo DeltaP" />
+  </div>
+
+  <!-- Container branco com o conteúdo do app -->
+  <div class="container">
   <div id="login-container">
     <h2>Login</h2>
     <input type="text" id="username" placeholder="Usuário">
