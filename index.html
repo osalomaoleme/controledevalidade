@@ -19,7 +19,7 @@
 
 <script>
   // Verifica se o usuário está logado. Se não, redireciona para login.html.
-  if (!localStorage.getItem("usuarioLogado")) {
+  if (!sessionStorage.getItem("usuarioLogado")) {
     window.location.href = "login.html";
   }
 </script>
