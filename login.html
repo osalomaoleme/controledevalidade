@@ -33,9 +33,6 @@
       width: 100%;
       cursor: pointer;
     }
-    button:hover {
-      background: #0D283D;
-    }
     .error {
       color: red;
       font-size: 14px;
@@ -52,28 +49,30 @@
   </div>
 
   <script>
-    // Substitua abaixo pela URL do seu Web App do Google Apps Script.
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbyvI4aNSv8EmD1w-8h7O7LSBOuBf-G1VbdRN1Bn7BWfIOTrqDIj3vKpA7baZH6TEc5z-A/exec";
+    // URL do seu Web App do Google Apps Script – use a mesma URL que funciona no index.html.
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbxLBCBTrzpOxBTu7QE4hCikyZpG34CILRduxkTAtXMcXIzZ9YSLqPSgS05gd7EY_eu5-w/exec";
 
     async function login() {
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
       const errorMsg = document.getElementById("error-msg");
-
-      // Monta os parâmetros para a requisição GET
-      const params = new URLSearchParams({ username, password });
+      
+      // Monta os parâmetros, incluindo action=login
+      const params = new URLSearchParams({ 
+        action: "login", 
+        username: username, 
+        password: password 
+      });
       
       try {
-        // Requisição GET simples (sem cabeçalhos personalizados)
         const response = await fetch(`${scriptUrl}?${params.toString()}`, { method: "GET" });
         const result = await response.json();
         
-        // Se o resultado for "sucesso" (ou um objeto com status "sucesso")
-        if(result === "sucesso" || (result && result.status === "sucesso")) {
+        if (result.status === "Sucesso") {
           localStorage.setItem("usuarioLogado", username);
           window.location.href = "index.html";
         } else {
-          errorMsg.innerText = "Usuário ou senha incorretos!";
+          errorMsg.innerText = result.mensagem;
         }
       } catch (err) {
         console.error("Erro:", err);
