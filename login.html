@@ -19,8 +19,7 @@
     .logo-container img {
       width: 250px; /* ajuste conforme necessário */
     }
-    /* Container branco com o conteúdo do app */
-    .container {
+    #login-container {
       background: white;
       padding: 20px;
       border-radius: 8px;
@@ -29,27 +28,11 @@
       margin: auto;
       margin-top: 0px;
     }
-    #login-container {
-      margin: 0; /* remove espaçamento adicional */
-    }
-    .error {
-      color: red;
-      font-size: 14px;
-    }
     input {
       width: 90%;
       padding: 10px;
       margin: 10px 0;
     }
-    input {
-    width: 90%;
-    padding: 10px;
-    margin: 10px 0;
-    box-sizing: border-box;
-    font-size: 16px;
-    height: 40px; /* Define uma altura fixa para todos os inputs */
-   }  
-  
     button {
       background: #0D283D;
       color: white;
@@ -58,30 +41,9 @@
       width: 100%;
       cursor: pointer;
     }
-
-    /* Estilos para o container da senha */
-    .password-container {
-      position: relative;
-      display: inline-block;
-      width: 90%;
-      margin: 10px 0;
-    }
-    .password-container input {
-      width: 100%;
-      padding-right: 40px; /* espaço para o ícone */
-      box-sizing: border-box;
-    }
-    /* Ícone do olho */
-    .toggle-password {
-      position: absolute;
-      top: 50%;
-      right: 10px; /* ajuste conforme necessário */
-      transform: translateY(-50%);
-      cursor: pointer;
-    }
-    .toggle-password img {
-      width: 24px; /* ajuste conforme necessário */
-      height: 24px;
+    .error {
+      color: red;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -91,41 +53,15 @@
     <img src="logodeltap.png" alt="Logo DeltaP" />
   </div>
 
+  <!-- Container branco com o conteúdo do app -->
   <div class="container">
-    <div id="login-container">
-      <h2>Login</h2>
-      <input type="text" id="username" placeholder="Usuário">
-
-      <!-- Campo de senha com ícone de olho -->
-      <div class="password-container">
-        <input type="number" id="password" placeholder="Senha">
-        <span class="toggle-password" onclick="togglePassword()">
-          <!-- Substitua 'eye-icon.png' pelo caminho/ícone desejado -->
-          <img src="eye.png" alt="Mostrar/ocultar senha" id="toggleIcon" />
-        </span>
-      </div>
-
-      <button onclick="login()">Entrar</button>
-      <p id="error-msg" class="error"></p>
-    </div>
+  <div id="login-container">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Usuário">
+    <input type="number" id="password" placeholder="Senha">
+    <button onclick="login()">Entrar</button>
+    <p id="error-msg" class="error"></p>
   </div>
-
-  <script>
-    function togglePassword() {
-      const passwordInput = document.getElementById("password");
-      const toggleIcon = document.getElementById("toggleIcon");
-      
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        // Se quiser mudar o ícone ao exibir a senha, basta alterar a linha abaixo
-        // toggleIcon.src = "eye-slash-icon.png";
-      } else {
-        passwordInput.type = "password";
-        // Restaura o ícone original
-        // toggleIcon.src = "eye-icon.png";
-      }
-    }
-  </script>
 
   <script>
     // URL do seu Web App do Google Apps Script – use a mesma URL que funciona no index.html.
