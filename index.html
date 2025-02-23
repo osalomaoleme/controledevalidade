@@ -165,59 +165,62 @@
 
   <script>
     // URL do seu Google Apps Script (substitua conforme necessário)
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbyvI4aNSv8EmD1w-8h7O7LSBOuBf-G1VbdRN1Bn7BWfIOTrqDIj3vKpA7baZH6TEc5z-A/exec";
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbxLBCBTrzpOxBTu7QE4hCikyZpG34CILRduxkTAtXMcXIzZ9YSLqPSgS05gd7EY_eu5-w/exec";
 
     // Variável para armazenar a instância do html5-qrcode
     let html5QrCode = null;
 
     async function enviarDados() {
-      const botao = document.getElementById("btn-enviar");
-      botao.disabled = true;
-      botao.textContent = "Enviando...";
+  const botao = document.getElementById("btn-enviar");
+  botao.disabled = true;
+  botao.textContent = "Enviando...";
 
-      const codigo = document.getElementById("codigo").value;
-      const quantidade = document.getElementById("quantidade").value;
-      const validade = document.getElementById("validade").value;
-      const setor = document.getElementById("setor").value;
+  const codigo = document.getElementById("codigo").value;
+  const quantidade = document.getElementById("quantidade").value;
+  const validade = document.getElementById("validade").value;
+  const setor = document.getElementById("setor").value;
 
-      // Verificação simples se os campos obrigatórios estão preenchidos
-      if (!codigo || !quantidade || !validade) {
-        document.getElementById("mensagem").textContent = "Preencha todos os campos obrigatórios!";
-        document.getElementById("mensagem").style.color = "#ff0000";
-        botao.disabled = false;
-        botao.textContent = "Enviar";
-        return;
-      }
+  if (!codigo || !quantidade || !validade) {
+    document.getElementById("mensagem").textContent = "Preencha todos os campos obrigatórios!";
+    document.getElementById("mensagem").style.color = "#ff0000";
+    botao.disabled = false;
+    botao.textContent = "Enviar";
+    return;
+  }
 
-      // Monta os parâmetros de query
-      const params = new URLSearchParams({ codigo, quantidade, validade, setor });
+  // Inclui action=registro
+  const params = new URLSearchParams({ 
+    action: "registro",
+    codigo: codigo, 
+    quantidade: quantidade, 
+    validade: validade, 
+    setor: setor 
+  });
 
-      try {
-        // Faz a requisição GET para o Apps Script
-        const response = await fetch(`${scriptUrl}?${params.toString()}`, { method: "GET" });
-        const resposta = await response.json();
+  try {
+    const response = await fetch(`${scriptUrl}?${params.toString()}`, { method: "GET" });
+    const resposta = await response.json();
 
-        // Exibe a mensagem de retorno
-        document.getElementById("mensagem").textContent = resposta.mensagem;
-        document.getElementById("mensagem").style.color =
-          resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
+    document.getElementById("mensagem").textContent = resposta.mensagem;
+    document.getElementById("mensagem").style.color =
+      resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
 
-        // Se sucesso, limpa os campos
-        if (resposta.status === "Sucesso") {
-          document.getElementById("codigo").value = "";
-          document.getElementById("quantidade").value = "";
-          document.getElementById("validade").value = "";
-          document.getElementById("setor").selectedIndex = 0;
-        }
-      } catch (erro) {
-        document.getElementById("mensagem").textContent = "Falha na comunicação com o servidor";
-        document.getElementById("mensagem").style.color = "#ff0000";
-        console.error(erro);
-      } finally {
-        botao.disabled = false;
-        botao.textContent = "Enviar";
-      }
+    if (resposta.status === "Sucesso") {
+      document.getElementById("codigo").value = "";
+      document.getElementById("quantidade").value = "";
+      document.getElementById("validade").value = "";
+      document.getElementById("setor").selectedIndex = 0;
     }
+  } catch (erro) {
+    document.getElementById("mensagem").textContent = "Falha na comunicação com o servidor";
+    document.getElementById("mensagem").style.color = "#ff0000";
+    console.error(erro);
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "Enviar";
+  }
+}
+
 
     function iniciarLeitura() {
       document.getElementById("video-container").style.display = "flex";
