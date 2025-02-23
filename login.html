@@ -52,9 +52,9 @@
     </div>
 
     <script>
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbwKNmgGhaLc8y_M9thLgGrGYfOissvMpRI6aF7LkIPS63R8vAKVPjFivNKlDJFgl-Lbyw/exec";
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbxzE_ejkig7muNwCufUn498-ghRKVIkwbWzeK_KO9iquoUSiYKgLBk4YIPznB4SYcqgQg/exec";
 
-fetch(`${scriptUrl}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
+fetch(`${scriptUrl}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
   .then(response => response.json())
   .then(response => {
     if(response === "sucesso") {
