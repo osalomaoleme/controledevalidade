@@ -23,34 +23,41 @@
   </div>
 
   <script>
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbyL1lT4OvzAOz-KtIRVwG5pA8hTqI3CpL2jfZqUsjmXmmq598fZJ49bX4aGv313VxvmqA/exec"; // Use a mesma URL implantada no GS
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbzZuNWjj_QrKQ99agUQJX1NWSQZv7mQLzyg_r6OIiZaxTOTg1AEI8o7BvDLr6Rk2qJhdw/exec"; // Use a mesma URL implantada no GS
 
-    function login() {
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
-      const errorMsg = document.getElementById("error-msg");
-      
-      fetch(`${scriptUrl}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(response => {
-          // Considere que a resposta pode ser "sucesso" ou "erro", ou um objeto com status
-          if(response === "sucesso" || response.status === "sucesso") {
-            localStorage.setItem("usuarioLogado", username);
-            window.location.href = "index.html";
-          } else {
-            errorMsg.innerText = "Usuário ou senha incorretos!";
-          }
-        })
-        .catch(err => {
-          console.error("Erro:", err);
-          errorMsg.innerText = "Erro na comunicação com o servidor.";
-        });
-    }
+    <script>
+  function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const errorMsg = document.getElementById("error-msg");
+    const scriptUrl = "https://script.google.com/macros/s/SEU_ENDPOINT/exec";
+    const callbackName = "processLoginResponse";
+    
+    // Cria a URL com os parâmetros e o callback
+    const url = scriptUrl + 
+                "?username=" + encodeURIComponent(username) +
+                "&password=" + encodeURIComponent(password) +
+                "&callback=" + callbackName;
+    
+    // Cria uma tag script para carregar o JSONP
+    const script = document.createElement("script");
+    script.src = url;
+    document.body.appendChild(script);
+    
+    // Define a função de callback global
+    window[callbackName] = function(response) {
+      if(response === "sucesso" || response.status === "sucesso") {
+        localStorage.setItem("usuarioLogado", username);
+        window.location.href = "index.html";
+      } else {
+        errorMsg.innerText = "Usuário ou senha incorretos!";
+      }
+      // Remove o script para limpar
+      document.body.removeChild(script);
+      // Remove o callback global
+      delete window[callbackName];
+    };
+  }
   </script>
 </body>
 </html>
