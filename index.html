@@ -165,7 +165,7 @@
 
   <script>
     // URL do seu Google Apps Script (substitua conforme necessário)
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbxLBCBTrzpOxBTu7QE4hCikyZpG34CILRduxkTAtXMcXIzZ9YSLqPSgS05gd7EY_eu5-w/exec";
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyQRBo2kZRXA6PgRlaQuMCQbfeZJcKonkkEz-G3B6obw_6Ccojww2z9q3fc6ylzc7ZZ/exec";
 
     // Variável para armazenar a instância do html5-qrcode
     let html5QrCode = null;
@@ -179,6 +179,8 @@
   const quantidade = document.getElementById("quantidade").value;
   const validade = document.getElementById("validade").value;
   const setor = document.getElementById("setor").value;
+
+  const usuario = sessionStorage.getItem("usuarioLogado");    
 
   if (!codigo || !quantidade || !validade) {
     document.getElementById("mensagem").textContent = "Preencha todos os campos obrigatórios!";
@@ -194,7 +196,8 @@
     codigo: codigo, 
     quantidade: quantidade, 
     validade: validade, 
-    setor: setor 
+    setor: setor,
+    usuario: usuario
   });
 
   try {
