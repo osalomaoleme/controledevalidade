@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Controle de Validade</title>
 
+  <script>
+    // Se o usuário não estiver logado, redireciona para login.html
+    if (!localStorage.getItem("usuarioLogado")) {
+        window.location.href = "login.html";
+    }
+  </script>
+
   <!-- Manifest (PWA) -->
   <link rel="manifest" href="./manifest.json" />
 
