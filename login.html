@@ -53,18 +53,20 @@
 
     <script>
         function login() {
-            var username = document.getElementById("username").value;
-            var password = document.getElementById("password").value;
-            var errorMsg = document.getElementById("error-msg");
+    var username = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+    var errorMsg = document.getElementById("error-msg");
 
-            google.script.run.withSuccessHandler(function(response) {
-                if (response == "sucesso") {
-                    window.location.href = "index.html"; // Redireciona para a página principal do app
-                } else {
-                    errorMsg.innerText = "Usuário ou senha incorretos!";
-                }
-            }).verificarLogin(username, password);
+    google.script.run.withSuccessHandler(function(response) {
+        if (response == "sucesso") {
+            localStorage.setItem("usuarioLogado", username); // Armazena login no navegador
+            window.location.href = "index.html"; // Redireciona para o app
+        } else {
+            errorMsg.innerText = "Usuário ou senha incorretos!";
         }
+    }).verificarLogin(username, password);
+}
+
     </script>
 </body>
 </html>
