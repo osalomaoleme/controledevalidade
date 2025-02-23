@@ -1,16 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Controle de Validade</title>
-
-  <script>
-    // Se o usuário não estiver logado, redireciona para login.html
-    if (!localStorage.getItem("usuarioLogado")) {
-        window.location.href = "login.html";
-    }
-  </script>
 
   <!-- Manifest (PWA) -->
   <link rel="manifest" href="./manifest.json" />
@@ -35,22 +29,13 @@
       font-family: Arial, sans-serif;
     }
     body {
-      background-color: #0d283d;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
       min-height: 100vh;
+      background-color: #0d283d;
       padding: 20px;
     }
-    /* Container da logo (fora do container branco) */
-    .logo-container {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .logo-container img {
-      width: 200px; /* ajuste conforme necessário */
-    }
-    /* Container branco com o conteúdo */
     .container {
       background: white;
       padding: 20px;
@@ -98,13 +83,15 @@
       font-weight: bold;
       text-align: center;
     }
-    /* Container para o leitor de código (html5-qrcode) */
+
+    /* Container para o leitor */
     #video-container {
       display: none;
       flex-direction: column;
       align-items: center;
       margin-bottom: 15px;
     }
+    /* A div #reader será onde o html5-qrcode renderiza o vídeo */
     #reader {
       width: 100%;
       max-width: 400px;
@@ -119,12 +106,6 @@
   </style>
 </head>
 <body>
-  <!-- Logo fora do container branco -->
-  <div class="logo-container">
-    <img src="logo2.png" alt="Logo DeltaP" />
-  </div>
-
-  <!-- Container branco com o conteúdo do app -->
   <div class="container">
     <h2>CONTROLE DE VALIDADE</h2>
 
@@ -137,6 +118,7 @@
 
     <!-- Container para exibir o leitor de código (html5-qrcode) -->
     <div id="video-container">
+      <!-- Aqui o html5-qrcode exibirá o vídeo -->
       <div id="reader"></div>
       <button id="close-camera-btn" onclick="fecharCamera()">Fechar Câmera</button>
     </div>
@@ -163,8 +145,8 @@
   </div>
 
   <script>
-    // URL do seu Google Apps Script (substitua conforme necessário)
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbzZuNWjj_QrKQ99agUQJX1NWSQZv7mQLzyg_r6OIiZaxTOTg1AEI8o7BvDLr6Rk2qJhdw/exec";
+    // Substitua pela sua URL do Google Apps Script, se for o caso
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbybNpBX4Fywvt4_zaBMq8ykG9Gc_4v2vAkal9pfhicD5DqfipMzLyr0w0uUJ6RWk-8oSg/exec";
 
     // Variável para armazenar a instância do html5-qrcode
     let html5QrCode = null;
@@ -179,6 +161,7 @@
       const validade = document.getElementById("validade").value;
       const setor = document.getElementById("setor").value;
 
+      // Verificação simples se os campos obrigatórios estão preenchidos
       if (!codigo || !quantidade || !validade) {
         document.getElementById("mensagem").textContent = "Preencha todos os campos obrigatórios!";
         document.getElementById("mensagem").style.color = "#ff0000";
@@ -187,16 +170,22 @@
         return;
       }
 
+      // Monta os parâmetros de query
       const params = new URLSearchParams({ codigo, quantidade, validade, setor });
 
       try {
-        const response = await fetch(`${scriptUrl}?${params.toString()}`, { method: "GET" });
+        // Faz a requisição GET (ou POST, conforme sua API) para o Apps Script
+        const response = await fetch(`${scriptUrl}?${params.toString()}`, {
+          method: "GET"
+        });
         const resposta = await response.json();
 
+        // Exibe a mensagem de retorno
         document.getElementById("mensagem").textContent = resposta.mensagem;
         document.getElementById("mensagem").style.color =
           resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
 
+        // Se sucesso, limpa os campos
         if (resposta.status === "Sucesso") {
           document.getElementById("codigo").value = "";
           document.getElementById("quantidade").value = "";
@@ -213,13 +202,18 @@
       }
     }
 
+    // Inicia o leitor de código (html5-qrcode)
     function iniciarLeitura() {
       document.getElementById("video-container").style.display = "flex";
 
+      // Cria a instância do html5-qrcode, apontando para a div "reader"
       html5QrCode = new Html5Qrcode("reader");
+
+      // Configurações
       const config = {
-        fps: 10,
-        qrbox: 250,
+        fps: 10, // frames por segundo
+        qrbox: 250, // tamanho da área de leitura
+        // formatos de código que deseja suportar (EAN, CODE_128, etc.)
         formatsToSupport: [
           Html5QrcodeSupportedFormats.EAN_13,
           Html5QrcodeSupportedFormats.CODE_128,
@@ -227,6 +221,7 @@
         ]
       };
 
+      // Inicia a leitura com a câmera traseira (facingMode: "environment")
       html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
         .catch(err => {
           console.error("Erro ao iniciar html5-qrcode:", err);
@@ -235,12 +230,17 @@
         });
     }
 
+    // Função chamada quando um código é detectado
     function onScanSuccess(decodedText, decodedResult) {
       console.log("Código detectado:", decodedText);
+      // Preenche o campo "codigo" com o valor lido
       document.getElementById("codigo").value = decodedText;
+
+      // Para a leitura após detectar
       fecharCamera();
     }
 
+    // Fecha a câmera e para a leitura
     function fecharCamera() {
       if (html5QrCode) {
         html5QrCode.stop().then(() => {
