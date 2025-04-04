@@ -2,118 +2,271 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registro de Ponto</title>
-  <link rel="manifest" href="manifest.json" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Controle de Validade</title>
+
+  <!-- Manifest (PWA) -->
+  <link rel="manifest" href="./manifest.json" />
+
+  <!-- Registro do Service Worker (opcional, se estiver usando PWA) -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js")
+        .then(reg => console.log("Service Worker registrado:", reg))
+        .catch(err => console.error("Erro no Service Worker:", err));
+    }
+  </script>
+
+<script>
+  // Verifica se o usuário está logado. Se não, redireciona para login.html.
+  if (!sessionStorage.getItem("usuarioLogado")) {
+    window.location.href = "login.html";
+  }
+</script>
+
+  <!-- Biblioteca html5-qrcode -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
-    body {
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
       font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #0d283d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
       padding: 20px;
-      background-color: #f7f7f7;
+    }
+    /* Container para a logo, que ficará fora do bloco branco */
+    .logo-container {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .logo-container img {
+      width: 200px; /* ajuste conforme necessário */
+    }
+    /* Container branco com o conteúdo do app */
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
     }
     h2 {
+      color: #0d283d;
+      margin-bottom: 20px;
       text-align: center;
-      color: #333;
     }
     label {
       display: block;
-      margin-top: 10px;
+      margin: 10px 0 5px;
+      color: #0d283d;
       font-weight: bold;
-      color: #444;
     }
-    input, select, button {
+    input, select {
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
+      padding: 12px;
       margin-bottom: 15px;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
+      border-radius: 5px;
+      font-size: 16px;
     }
     button {
-      background-color: #4CAF50;
+      width: 100%;
+      padding: 14px;
+      background-color: #0d283d;
       color: white;
       border: none;
-      font-weight: bold;
+      border-radius: 5px;
       font-size: 16px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: 0.3s;
     }
-    button:hover {
-      background-color: #45a049;
+    button:disabled {
+      background-color: #3a5a77;
+      cursor: not-allowed;
     }
-    #status {
-      text-align: center;
+    #mensagem {
+      margin-top: 15px;
       font-weight: bold;
+      text-align: center;
+    }
+    /* Container para o leitor de código (html5-qrcode) */
+    #video-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    /* Área onde o html5-qrcode renderiza o vídeo */
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      min-height: 200px;
+      border: 1px solid #ccc;
+    }
+    #close-camera-btn {
+      background-color: #f44336;
+      color: white;
       margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h2>Registro de Ponto</h2>
+  <!-- Div exclusiva para a logo -->
+  <div class="logo-container">
+    <img src="logo2.png" alt="Logo DeltaP" />
+  </div>
 
-  <label for="data">Data</label>
-  <input type="date" id="data" />
+  <!-- Container branco com o conteúdo do app -->
+  <div class="container">
+    <h2>CONTROLE DE VALIDADE</h2>
 
-  <label for="hora">Hora</label>
-  <input type="time" id="hora" />
+    <!-- Campo do código do produto -->
+    <label for="codigo">Código do Produto:</label>
+    <input type="number" id="codigo" required />
 
-  <label for="tipo">Tipo de Registro</label>
-  <select id="tipo">
-    <option value="entrada">Entrada</option>
-    <option value="saida_almoco">Saída para Almoço</option>
-    <option value="retorno_almoco">Retorno do Almoço</option>
-    <option value="saida">Saída</option>
-  </select>
+    <!-- Botão para ativar a leitura de código de barras -->
+    <button type="button" onclick="iniciarLeitura()">Ler Código de Barras</button>
 
-  <button onclick="registrar()">Registrar Ponto</button>
+    <!-- Container para exibir o leitor de código (html5-qrcode) -->
+    <div id="video-container">
+      <div id="reader"></div>
+      <button id="close-camera-btn" onclick="fecharCamera()">Fechar Câmera</button>
+    </div>
 
-  <p id="status"></p>
+    <!-- Demais campos -->
+    <label for="quantidade">Quantidade:</label>
+    <input type="number" id="quantidade" required />
+
+    <label for="validade">Data de Vencimento:</label>
+    <input type="date" id="validade" required />
+
+    <label for="setor">Setor:</label>
+    <select id="setor">
+      <option value="MERCEARIA">MERCEARIA</option>
+      <option value="AÇOUGUE">AÇOUGUE</option>
+      <option value="FLV">FLV</option>
+      <option value="FRIOS">FRIOS</option>
+      <option value="PADARIA">PADARIA</option>
+    </select>
+
+    <!-- Botão de envio -->
+    <button id="btn-enviar" onclick="enviarDados()">Enviar</button>
+    <p id="mensagem"></p>
+  </div>
 
   <script>
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbxe4Xhvbn8kvm5GcgStrS7EaFqRS7RrPxEsMR5cX9uy78AajfDFM83AqPkAgOJI4_dqKg/exec";
+    // URL do seu Google Apps Script (substitua conforme necessário)
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyQRBo2kZRXA6PgRlaQuMCQbfeZJcKonkkEz-G3B6obw_6Ccojww2z9q3fc6ylzc7ZZ/exec";
 
-    async function registrar() {
-      const data = document.getElementById("data").value;
-      const hora = document.getElementById("hora").value;
-      const tipo = document.getElementById("tipo").value;
-      const status = document.getElementById("status");
+    // Variável para armazenar a instância do html5-qrcode
+    let html5QrCode = null;
 
-      if (!data || !hora || !tipo) {
-        status.textContent = "Preencha todos os campos.";
-        status.style.color = "red";
-        return;
+    async function enviarDados() {
+  const botao = document.getElementById("btn-enviar");
+  botao.disabled = true;
+  botao.textContent = "Enviando...";
+
+  const codigo = document.getElementById("codigo").value;
+  const quantidade = document.getElementById("quantidade").value;
+  const validade = document.getElementById("validade").value;
+  const setor = document.getElementById("setor").value;
+
+  const usuario = sessionStorage.getItem("usuarioLogado");    
+
+  if (!codigo || !quantidade || !validade) {
+    document.getElementById("mensagem").textContent = "Preencha todos os campos obrigatórios!";
+    document.getElementById("mensagem").style.color = "#ff0000";
+    botao.disabled = false;
+    botao.textContent = "Enviar";
+    return;
+  }
+
+  // Inclui action=registro
+  const params = new URLSearchParams({ 
+    action: "registro",
+    codigo: codigo, 
+    quantidade: quantidade, 
+    validade: validade, 
+    setor: setor,
+    usuario: usuario
+  });
+
+  try {
+    const response = await fetch(`${scriptUrl}?${params.toString()}`, { method: "GET" });
+    const resposta = await response.json();
+
+    document.getElementById("mensagem").textContent = resposta.mensagem;
+    document.getElementById("mensagem").style.color =
+      resposta.status === "Sucesso" ? "#0d283d" : "#ff0000";
+
+    if (resposta.status === "Sucesso") {
+      document.getElementById("codigo").value = "";
+      document.getElementById("quantidade").value = "";
+      document.getElementById("validade").value = "";
+      document.getElementById("setor").selectedIndex = 0;
+    }
+  } catch (erro) {
+    document.getElementById("mensagem").textContent = "Falha na comunicação com o servidor";
+    document.getElementById("mensagem").style.color = "#ff0000";
+    console.error(erro);
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "Enviar";
+  }
+}
+
+
+    function iniciarLeitura() {
+      document.getElementById("video-container").style.display = "flex";
+
+      // Cria a instância do html5-qrcode, apontando para a div "reader"
+      html5QrCode = new Html5Qrcode("reader");
+
+      // Configurações
+      const config = {
+        fps: 10,       // frames por segundo
+        qrbox: 250,    // área de leitura
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.EAN_8
+        ]
+      };
+
+      // Inicia a leitura com a câmera traseira (facingMode: "environment")
+      html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+        .catch(err => {
+          console.error("Erro ao iniciar html5-qrcode:", err);
+          document.getElementById("mensagem").textContent = "Erro ao acessar a câmera. Verifique permissões.";
+          document.getElementById("mensagem").style.color = "#ff0000";
+        });
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+      console.log("Código detectado:", decodedText);
+      // Preenche o campo "codigo" com o valor lido
+      document.getElementById("codigo").value = decodedText;
+      fecharCamera();
+    }
+
+    function fecharCamera() {
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          console.log("Câmera parada.");
+        }).catch(err => {
+          console.error("Erro ao parar a câmera:", err);
+        });
       }
-
-      const params = new URLSearchParams({
-        action: "registro",
-        dataSelecionada: data,
-        horaDigitada: hora,
-        tipoRegistro: tipo
-      });
-
-      try {
-        status.textContent = "Registrando...";
-        status.style.color = "#333";
-
-        const response = await fetch(`${scriptUrl}?${params.toString()}`, { method: "GET" });
-        const resultado = await response.json();
-
-        status.textContent = resultado.mensagem;
-        status.style.color = resultado.status === "Sucesso" ? "green" : "red";
-
-        if (resultado.status === "Sucesso") {
-          document.getElementById("data").value = "";
-          document.getElementById("hora").value = "";
-          document.getElementById("tipo").selectedIndex = 0;
-        }
-
-      } catch (erro) {
-        status.textContent = "Erro ao registrar ponto.";
-        status.style.color = "red";
-        console.error(erro);
-      }
+      document.getElementById("video-container").style.display = "none";
     }
   </script>
 </body>
