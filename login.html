@@ -8,46 +8,100 @@
   <link rel="manifest" href="./manifest.json" /> 
   
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f4f4f4;
-      padding: 20px;
-    }
-    /* Container para a logo, que ficará fora do bloco branco */
-    .logo-container {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .logo-container img {
-      width: 250px; /* ajuste conforme necessário */
-    }
-    #login-container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-      width: 300px;
-      margin: auto;
-      margin-top: 0px;
-    }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-    }
-    button {
-      background: #0D283D;
-      color: white;
-      border: none;
-      padding: 10px;
-      width: 100%;
-      cursor: pointer;
-    }
-    .error {
-      color: red;
-      font-size: 14px;
-    }
+    /* Garante que padding/border não estoure a largura */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px; /* base para rem */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-color: #f4f4f4;
+  padding: 1rem;          /* antes era 20px */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+}
+
+.logo-container {
+  margin-bottom: 1rem;
+  width: 60%;
+  max-width: 200px;
+}
+
+.logo-container img {
+  width: 100%;
+  height: auto;
+}
+
+.container {
+  /* centraliza verticalmente o login */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex: 1;
+}
+
+#login-container {
+  background: #fff;
+  padding: 1rem;
+  border-radius: .5rem;
+  box-shadow: 0 0 .5rem rgba(0,0,0,0.1);
+  width: 90%;
+  max-width: 320px;       /* nunca maior que isso */
+}
+
+#login-container h2 {
+  margin-bottom: .5rem;
+  font-size: 1.25rem;
+}
+
+input {
+  width: 100%;
+  padding: .75rem;
+  margin: .5rem 0;
+  font-size: 1rem;
+}
+
+button {
+  background: #0D283D;
+  color: #fff;
+  border: none;
+  padding: .75rem;
+  width: 100%;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: .25rem;
+}
+
+.error {
+  color: red;
+  font-size: .875rem;
+  margin-top: .5rem;
+}
+
+/* Media query para telas muito estreitas (p.ex. 480px de largura) */
+@media (max-width: 480px) {
+  html { font-size: 14px; }
+  body { padding: .5rem; }
+  #login-container {
+    padding: .75rem;
+  }
+  input, button {
+    padding: .5rem;
+    font-size: .875rem;
+  }
+}
+
   </style>
 </head>
 <body>
